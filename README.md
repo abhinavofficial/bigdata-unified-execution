@@ -17,64 +17,100 @@ This is where Environment as Code makes the most sense. We can start small and m
 
 ## Test environment setup
 
+* Get spark version you want to run
+
+```shell
+wget https://dlcdn.apache.org/spark/spark-3.5.1/spark-3.5.1-bin-hadoop3.tgz
+tar -xvf spark-3.5.1-bin-hadoop3.tgz
+sudo mv spark-3.5.1-bin-hadoop3 /opt
+sudo ln -s spark-3.5.1-bin-hadoop3/ spark
+```
+
 * Install and set up minikube. Please follow the link [setup](https://minikube.sigs.k8s.io/docs/start/) guide.
 
-```txt
-*😄  *minikube v1.32.0 on Ubuntu 22.04
-✨  Using the docker driver based on existing profile
-👍  Starting control plane node minikube in cluster minikube
-🚜  Pulling base image ...
-🔥  Creating docker container (CPUs=2, Memory=2900MB) ...
-🐳  Preparing Kubernetes v1.28.3 on Docker 24.0.7 ...
-    ▪ Generating certificates and keys ...
-    ▪ Booting up control plane ...
-    ▪ Configuring RBAC rules ...
-🔗  Configuring bridge CNI (Container Networking Interface) ...
-    ▪ Using image gcr.io/k8s-minikube/storage-provisioner:v5
-🔎  Verifying Kubernetes components...
-🌟  Enabled addons: storage-provisioner, default-storageclass
-🏄  Done! kubectl is now configured to use "minikube" cluster and "default" namespace by default
+```shell
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
+minikube start
+
+#  minikube v1.32.0 on Ubuntu 22.04
+#  Using the docker driver based on existing profile
+#  Starting control plane node minikube in cluster minikube
+#  Pulling base image ...
+#  Restarting existing docker container for "minikube" ...
+#  Preparing Kubernetes v1.28.3 on Docker 24.0.7 ...
+#  Configuring bridge CNI (Container Networking Interface) ...
+#  Verifying Kubernetes components...
+#    Using image gcr.io/k8s-minikube/storage-provisioner:v5
+#    Using image gcr.io/k8s-minikube/minikube-ingress-dns:0.0.2
+#  Enabled addons: storage-provisioner, ingress-dns, default-storageclass
+#  kubectl not found. If you need it, try: 'minikube kubectl -- get pods -A'
+#  Done! kubectl is now configured to use "minikube" cluster and "default" namespace by default
 ```
 
 * Check if minikube setup is fine
 
 ```shell
-minikube kubectl -- get po -A
+nikube kubectl -- get po -A
 alias kubectl="minikube kubectl --"
-minikube dashboard
+```
+
+* Spark expects DNS enabled Kubernetes
+
+```shell
+minikube addons enable ingress-dns
+minikube start
+```
+
+* Set appropriate permissioning for running the spark application
+
+```shell
+# RBAC
+kubectl create serviceaccount spark
+kubectl create clusterrolebinding spark-role --clusterrole=edit --serviceaccount=default:spark --namespace=default
 
 # verify before progress if you have sufficient privilege
 kubectl auth can-i <list|create|edit|delete> <pods|services|configmaps>
+```
 
-minikube addons enable metrics-server
+* Get the cluster information you need to start the spark job
+
+```shell
+# to get the kubernetes control plane url. This return the secured (https) url
+kubectl cluster-info
+# Below is how the result looks
+# > Kubernetes control plane is running at https://192.168.49.2:8443
+# > CoreDNS is running at https://192.168.49.2:8443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+# Alternate, you can start local proxy
+kubectl proxy
 ```
 
 * Test if you can run your first spark job
 
 ```shell
-$ kubectl create serviceaccount spark
-$ kubectl create clusterrolebinding spark-role --clusterrole=edit --serviceaccount=default:spark --namespace=default
-
-# to get the kubernetes control plane url. This return the secured (https) url
-$ kubectl cluster-info
-
-# Alternate, you can start local proxy
-$ kubectl proxy
-
-$ ./bin/spark-submit \
-    --master k8s://http://127.0.0.1:8001 \
-    --deploy-mode cluster \
-    --name spark-pi \
-    --class org.apache.spark.examples.SparkPi \
-    --conf spark.executor.instances=5 \
-    --conf spark.kubernetes.container.image=apache/spark \
-    --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark \ local:///opt/spark/examples/jars/spark-examples_2.12-3.5.0.jar
+# Now do a spark submit to run the app
+./bin/spark-submit --master k8s://https://192.168.49.2:8443 --deploy-mode cluster --name spark-pi --class org.apache.spark.examples.SparkPi --conf spark.executor.instances=1  --conf spark.kubernetes.container.image=apache/spark  --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark  local:///opt/spark/examples/jars/spark-examples_2.12-3.5.1.jar
 ```
 
-* Let's add the next level of complexity. In the local environment, we will hold out code and data files within S3 compatible minio.
-  
-* Now we keep the metadata in postgres. So, let's set that up as well.
+* Now watch your applications runs
 
+```shell
+# To see things in dashboard
+minikube dashboard
+
+# Some dashboard features require the metrics-server addon. To enable all features please run:
+minikube addons enable metrics-server
+```
+
+* There are some more things you can do here
+
+```text
+Create namespace and put resource limits or quotas per namespace. This helps manage blast radius.
+```
+
+* Let's add the next level of complexity. In the local environment, we will hold out code and data files within S3 compatible minio.  
+* Now we keep the metadata in postgres. So, let's set that up as well.
 
 ## Production Environment set up
 
@@ -96,15 +132,15 @@ aws eks update-kubeconfig --region region-code --name my-cluster
 
 #### EMR on EKS Set up
 
-https://aws.amazon.com/blogs/big-data/amazon-emr-on-eks-widens-the-performance-gap-run-apache-spark-workloads-5-37-times-faster-and-at-4-3-times-lower-cost/
+[Blog 1](https://aws.amazon.com/blogs/big-data/amazon-emr-on-eks-widens-the-performance-gap-run-apache-spark-workloads-5-37-times-faster-and-at-4-3-times-lower-cost/)
 
-https://aws.amazon.com/blogs/containers/best-practices-for-running-spark-on-amazon-eks/
+[Blog 2](https://aws.amazon.com/blogs/containers/best-practices-for-running-spark-on-amazon-eks/)
 
-https://aws.amazon.com/blogs/big-data/use-karpenter-to-speed-up-amazon-emr-on-eks-autoscaling/
+[Blog 3](https://aws.amazon.com/blogs/big-data/use-karpenter-to-speed-up-amazon-emr-on-eks-autoscaling/)
 
-https://aws.amazon.com/blogs/containers/run-spark-rapids-ml-workloads-with-gpus-on-amazon-emr-on-eks/
+[Blog 4](https://aws.amazon.com/blogs/containers/run-spark-rapids-ml-workloads-with-gpus-on-amazon-emr-on-eks/)
 
-https://docs.aws.amazon.com/emr/latest/EMR-on-EKS-DevelopmentGuide/setting-up.html
+[Blog 5](https://docs.aws.amazon.com/emr/latest/EMR-on-EKS-DevelopmentGuide/setting-up.html)
 
 ### Snowflake Environment
 
