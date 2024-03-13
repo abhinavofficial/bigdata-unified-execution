@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2024-03-13T03:32:52.759Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0" etag="hxu6AAtNj9vVbMJwr4ZD" version="23.1.2" type="github">
+<mxfile host="app.diagrams.net" modified="2024-03-13T03:37:50.731Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0" etag="dgoIOa2wMEcXP8Zzb-BG" version="23.1.2" type="github">
   <diagram name="Page-1" id="qpkbw7lAyscy1kqCkF4M">
     <mxGraphModel dx="2236" dy="1885" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
@@ -405,7 +405,28 @@
           <mxGeometry x="9" y="134" width="80" height="40" as="geometry" />
         </mxCell>
         <mxCell id="6YPHFOy4guUbye9Mkrya-139" value="Infrastructure" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="800" y="160" width="370" height="280" as="geometry" />
+          <mxGeometry x="800" y="135" width="370" height="330" as="geometry" />
+        </mxCell>
+        <mxCell id="6YPHFOy4guUbye9Mkrya-140" value="AWS" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="6YPHFOy4guUbye9Mkrya-139">
+          <mxGeometry x="20" y="40" width="150" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="6YPHFOy4guUbye9Mkrya-144" value="Containers" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="6YPHFOy4guUbye9Mkrya-140">
+          <mxGeometry x="10" y="27" width="60" height="33" as="geometry" />
+        </mxCell>
+        <mxCell id="6YPHFOy4guUbye9Mkrya-145" value="EMR" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="6YPHFOy4guUbye9Mkrya-140">
+          <mxGeometry x="80" y="27" width="60" height="33" as="geometry" />
+        </mxCell>
+        <mxCell id="6YPHFOy4guUbye9Mkrya-141" value="GCP" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="6YPHFOy4guUbye9Mkrya-139">
+          <mxGeometry x="200" y="40" width="150" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="6YPHFOy4guUbye9Mkrya-142" value="Azure" style="swimlane;whiteSpace=wrap;html=1;startSize=23;" vertex="1" parent="6YPHFOy4guUbye9Mkrya-139">
+          <mxGeometry x="20" y="170" width="150" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="6YPHFOy4guUbye9Mkrya-143" value="Cloudera" style="swimlane;whiteSpace=wrap;html=1;startSize=23;" vertex="1" parent="6YPHFOy4guUbye9Mkrya-139">
+          <mxGeometry x="200" y="170" width="150" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="6YPHFOy4guUbye9Mkrya-146" value="Serverless" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="831" y="245" width="60" height="33" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
