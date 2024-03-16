@@ -160,6 +160,8 @@ aws eks update-kubeconfig --region region-code --name my-cluster
 
 ## Engineering Plane Set up
 
+
+
 ## Data Plane Set up
 
 ## Control Plane Set up
